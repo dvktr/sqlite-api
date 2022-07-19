@@ -2,7 +2,87 @@ import { openDb } from '../configdb.js';
 
 export async function createTable(){
   openDb().then(db=>{
-    db.exec('CREATE TABLE IF NOT EXISTS Pessoa ( id INTEGER PRIMARY KEY, nome TEXT, idade INTEGER )')
+    db.exec('CREATE TABLE IF NOT EXISTS Usuario ( id INTEGER PRIMARY KEY, nome TEXT, email TEXT, senha TEXT, avatar TEXT )')
+  })
+}
+
+export async function createUser(req, res){
+  let user = req.body
+
+  if (!user.nome || user.nome.length < 2) {
+    return res.json({
+      "statusCode" : 400,
+      "error": "Nome inválido."
+    })
+  }
+
+  if (!user.email || user.email.length < 2 || !user.email.includes('@') || !user.email.includes('.')) {
+    return res.json({
+      "statusCode" : 400,
+      "error": "Email inválido."
+    })
+  }
+
+  if (!user.senha || user.senha.length < 3) {
+    return res.json({
+      "statusCode" : 400,
+      "error": "Senha inválida."
+    })
+  }
+
+  openDb().then(db=>{
+    db.get('SELECT * FROM Usuario WHERE email=?', [user.email])
+   .then(pessoas => {
+    if(pessoas != null) {
+      res.json({
+        "statusCode" : 400,
+        "error": "Email já cadastrado."
+      })
+    } else {
+      openDb().then(db=>{
+        db.run('INSERT INTO Usuario(nome, email, senha, avatar) VALUES (?, ?, ?, ?)', [user.nome, user.email, user.senha, user.avatar])
+      })
+      res.json({
+        "statusCode" : 200,
+        "error": "Usuário cadastrado com sucesso."
+      })
+    }
+  });
+ })
+}
+
+export async function loginUser(req, res){
+  let user = req.body
+
+   openDb().then(db=>{
+     db.get('SELECT * FROM Usuario WHERE email=?', [user.email])
+    .then(pessoas=> {
+      
+      if(pessoas == null){
+        res.json({
+          "statusCode" : 400,
+          "error": "Usuário não cadastrado."
+        })
+      } else {
+
+        if(pessoas.senha != user.senha){
+          res.json({
+            "statusCode" : 400,
+            "error": "Senha inválida."
+          })
+        }
+  
+        if(pessoas.senha == user.senha){
+          res.json({
+            "statusCode" : 200,
+            "error": "Usuário aceito."
+          })
+        }
+      }
+      
+      
+
+    });
   })
 }
 
@@ -41,10 +121,10 @@ export async function selectPessoa(req, res){
   })
 }
 
-export async function deletePessoa(req, res){
+export async function deleteUser(req, res){
   let id = req.body.id
    openDb().then(db=>{
-     db.get('DELETE FROM Pessoa WHERE id=?', [id])
+     db.get('DELETE FROM Usuario WHERE id=?', [id])
     .then(res=>res);
   })
   res.json({

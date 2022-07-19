@@ -6,4 +6,4 @@ import router from './routes.js'
 
 app.use(router);
 
-app.listen(3001, ()=>{console.log("API LIGADA")})
+app.listen(3002, ()=>{console.log("API LIGADA")})
