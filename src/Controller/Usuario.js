@@ -2,7 +2,7 @@ import { openDb } from '../configdb.js';
 
 export async function createTable(){
   openDb().then(db=>{
-    db.exec('CREATE TABLE IF NOT EXISTS Usuario ( id INTEGER PRIMARY KEY, nome TEXT, email TEXT, senha TEXT, avatar TEXT )')
+    db.exec('CREATE TABLE IF NOT EXISTS Usuario ( id INTEGER PRIMARY KEY, nome TEXT, email TEXT, senha TEXT, avatar TEXT, cargo TEXT, local TEXT, numero TEXT)')
   })
 }
 
@@ -49,6 +49,29 @@ export async function createUser(req, res){
     }
   });
  })
+}
+
+export async function addUserInfo(req, res){
+  let user = req.body
+  if(!user.cargo || !user.local || !user.numero){
+    return res.json({
+      "statusCode" : 400,
+      "error": "Informacoes em falta"
+    })
+  } else if(!user.id){
+    return res.json({
+      "statusCode" : 400,
+      "error": "Id não indentificado!"
+    })
+  }else{
+    openDb().then(db=>{
+      db.run('UPDATE Usuario SET cargo=?, local=?, numero=? WHERE id=?', [user.cargo, user.local, user.numero, user.id]);
+    })
+    res.json({
+      "statusCode" : 200,
+      "error": "Informacoes atualizadas."
+    })
+  }
 }
 
 export async function loginUser(req, res){
@@ -108,16 +131,31 @@ export async function updatePessoa(req, res){
 
 export async function listPessoa(req, res){
    openDb().then(db=>{
-     db.all('SELECT * FROM Pessoa')
+     db.all('SELECT * FROM Usuario')
     .then(pessoa => res.json(pessoa));
   })
 }
 
-export async function selectPessoa(req, res){
-  let id = req.body.id
+export async function selectUser(req, res){
+  let email = req.body.email
+  if(!email){
+    return res.json({
+      "statusCode" : 400,
+      "error": "Falha ao carregar as informacoes"
+    })
+  }
    openDb().then(db=>{
-     db.get('SELECT * FROM Pessoa WHERE id=?', [id])
-    .then(pessoas=> res.json(pessoas));
+     db.get('SELECT * FROM Usuario WHERE email=?', [email])
+    .then(pessoas => {
+        if(pessoas == null){
+          return res.json({
+            "statusCode" : 400,
+            "error": "Usuario nao encontrado"
+          })    
+        } else {
+          return res.json(pessoas)
+        }
+      });
   })
 }
 
