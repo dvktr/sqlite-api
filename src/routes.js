@@ -1,5 +1,6 @@
 import { createTable, createUser, loginUser, addUserInfo, listPessoa, selectUser, deleteUser } from './Controller/Usuario.js';
 import { createContraCheque, addContraCheque, addContraChequeInfo, selectContraCheque } from './Controller/ContraCheque.js'
+import { createTableServiceDesk, addService, getService, putService } from './Controller/ServiceDesk.js'
 import { Router } from 'express';
 
 const router = Router();
@@ -11,6 +12,7 @@ router.get('/', (req, res) => {
   })
   createTable();
   createContraCheque();
+  createTableServiceDesk();
 })
 
 router.post('/cadastro', createUser)
@@ -23,6 +25,11 @@ router.post('/seluser', selectUser);
 router.post('/contracheque/cadastro', addContraCheque)
 router.put('/contracheque', addContraChequeInfo)
 router.post('/contracheque', selectContraCheque)
+
+router.post('/servicedesk', addService)
+router.get('/servicedesk', getService)
+router.put('/servicedesk', putService)
+
 /*router.post('/pessoa', insertPessoa);
 
 

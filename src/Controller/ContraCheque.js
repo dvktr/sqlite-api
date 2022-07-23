@@ -72,18 +72,30 @@ export async function addContraCheque(req, res) {
 
 export async function addContraChequeInfo(req, res) {
   let user = req.body;
+
+  const verificaCaracteres = (string) => {
+      return /^[\d,.?!]+$/.test(string)
+  }
+
   if (
     !user.salario ||
+    !verificaCaracteres(user.salario) ||
     !user.faltas ||
+    !verificaCaracteres(user.faltas) ||
     !user.inss ||
+    !verificaCaracteres(user.inss) ||
     !user.vt ||
+    !verificaCaracteres(user.vt) ||
     !user.va ||
+    !verificaCaracteres(user.va) ||
     !user.dterceiro ||
-    !user.salariol
+    !verificaCaracteres(user.dterceiro) ||
+    !user.salariol ||
+    !verificaCaracteres(user.salariol)
   ) {
     return res.json({
       statusCode: 400,
-      error: "Informacoes em falta",
+      error: "Informacoes em falta ou invalidas",
     });
   } else if (!user.email) {
     return res.json({
