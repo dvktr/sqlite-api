@@ -26,12 +26,6 @@ export async function addContraCheque(req, res) {
   openDb().then((db) => {
     db.get("SELECT * FROM Usuario WHERE email=?", [user.email]).then(
       (pessoas) => {
-        if (pessoas == null) {
-          return res.json({
-            statusCode: 400,
-            error: "Email não encontrado",
-          });
-        } else {
           openDb().then((db) => {
             db.get("SELECT * FROM ContraCheque WHERE email=?", [
               user.email,
@@ -64,7 +58,7 @@ export async function addContraCheque(req, res) {
               }
             });
           });
-        }
+        
       }
     );
   });
